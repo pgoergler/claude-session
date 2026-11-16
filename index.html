@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Reprendre la session</title>
+<style>
+  :root {
+    --fond: #f6f5f1;
+    --texte: #1f1e1c;
+    --discret: #6b6862;
+    --carte: #ffffff;
+    --bord: #dedbd3;
+    --accent: #c15f3c;
+    --accent-texte: #ffffff;
+    --erreur: #a8321f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fond: #1c1b19;
+      --texte: #ecebe6;
+      --discret: #a09d95;
+      --carte: #262522;
+      --bord: #3a3833;
+      --accent: #d97757;
+      --accent-texte: #1c1b19;
+      --erreur: #f08a76;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: var(--fond);
+    color: var(--texte);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  main {
+    width: 100%;
+    max-width: 34rem;
+    background: var(--carte);
+    border: 1px solid var(--bord);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 12px; }
+  p { margin: 0 0 16px; }
+  .discret { color: var(--discret); font-size: 0.9rem; }
+  .erreur { color: var(--erreur); }
+  a.bouton {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-texte);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  code {
+    display: block;
+    padding: 10px 12px;
+    border: 1px solid var(--bord);
+    border-radius: 8px;
+    font: 0.85rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <section id="valide" hidden>
+    <h1>Reprendre la session dans Claude</h1>
+    <p id="mobile" hidden>Cette session tourne sur le Mac : ouvre ce lien depuis le Mac pour la reprendre.</p>
+    <a class="bouton" id="ouvrir" href="#">Ouvrir dans Claude</a>
+    <p class="discret">Si rien ne s'ouvre, colle ce lien dans la barre d'adresse :</p>
+    <code id="lien"></code>
+  </section>
+  <section id="invalide" hidden>
+    <h1 class="erreur">Lien de session invalide</h1>
+    <p>L'adresse doit finir par <code>#local_&lt;identifiant de session&gt;</code>.</p>
+  </section>
+</main>
+<script>
+  (function () {
+    var motif = /^#(local_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+    var trouve = motif.exec(window.location.hash);
+    if (!trouve) {
+      document.getElementById("invalide").hidden = false;
+      return;
+    }
+    var lien = "claude://claude.ai/epitaxy/" + trouve[1];
+    document.getElementById("ouvrir").href = lien;
+    document.getElementById("lien").textContent = lien;
+    document.getElementById("valide").hidden = false;
+    var mobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+    if (mobile) {
+      document.getElementById("mobile").hidden = false;
+      return;
+    }
+    window.location.replace(lien);
+  })();
+</script>
+</body>
+</html>
